@@ -1,5 +1,5 @@
 from model import unet
-from data import testGenerator, saveResult2
+from data import testGenerator, saveResult
 from tensorflow.keras.models import load_model
 import numpy as np
 
@@ -27,4 +27,4 @@ test_images, file_names = zip(*test_data)
 results = model.predict(testGene, steps=25, verbose=1)
 
 # Save results
-saveResult2("./data/predictions", results, file_names)
+saveResult("./data/predictions", results, file_names)
