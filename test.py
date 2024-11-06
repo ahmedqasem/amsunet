@@ -3,8 +3,8 @@ from data import testGenerator, saveResult
 from tensorflow.keras.models import load_model
 import numpy as np
 
-im_height = 512
-im_width = 512
+im_height = 1024
+im_width = 1024
 
 test_folder = './data/test/image'
 models_folder = './trained_models'
