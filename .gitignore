@@ -162,6 +162,7 @@ cython_debug/
 # folder 
 data/
 trained_models/
+experiments/
 
 #files
 .DS*
