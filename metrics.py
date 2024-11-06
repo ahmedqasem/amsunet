@@ -1,31 +1,64 @@
 import os
-import imageio
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import img_as_uint
 from skimage.filters import threshold_otsu
-from keras_preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+import pandas as pd
+
+"""
+This script calculates and saves evaluation metrics for binary segmentation models by comparing predicted labels (or processed images)
+to ground truth labels. The results are saved in a CSV file for further analysis.
+
+INSTRUCTIONS:
+
+1. Folder Setup:
+    - `label_mono_path`: Set this variable to the directory containing the processed prediction images to analyze.
+      Ensure that this folder contains only the predicted label images in grayscale format (e.g., PNG, JPEG).
+    - `label_truth_path`: Set this variable to the directory containing the ground truth label images for comparison.
+      The ground truth images should also be in grayscale format and should match the filenames in `label_mono_path`
+      for accurate comparison.
+
+2. Image Processing:
+    - Ensure all images in `label_mono_path` have been processed and saved with the same dimensions as the images in `label_truth_path`.
+    - Each image in `label_mono_path` should have a corresponding image with the same name in `label_truth_path`.
+
+3. Metrics Calculated:
+    - True Positive Rate (TPR)
+    - False Positive Rate (FPR)
+    - F-Score
+    - Intersection over Union (IOU Score)
+    - Sensitivity
+    - Specificity
+    - Accuracy
+    - True Positives (TP), True Negatives (TN), False Positives (FP), False Negatives (FN)
+
+4. Output:
+    - A CSV  will be saved in the folder specified by `save_to`.
+    - Each row in the CSV file corresponds to an image, identified by its filename, along with the computed metrics for that image.
+"""
 
 # save folder
-save_to = './experiments/raw_analysis'
-no_images = 25
+save_to = './experiments/raw_analysis' # change output folder as needed
+#no_images = 25
 # Load data
-label_mono_path = './experiments/predict/'
-label_truth_path = './experiments/true_label/'
-# metrics
-image_list = np.array([])
-TPR = np.array([])
-FPR = np.array([])
-F_SCORE = np.array([])
-IOU = np.array([])
-IOU_SCORE = np.array([])
-SENSITIVITY = np.array([])
-SPECIFICITY = np.array([])
-ACCURACY = np.array([])
-TP = np.array([])
-TN = np.array([])
-FP = np.array([])
-FN = np.array([])
+label_mono_path = './data/predictions/' # folder for the predictions that we need to analyze
+label_truth_path = './data/test/label/' # ground truth folder
+
+# Metrics
+image_list = []
+TPR = []
+FPR = []
+F_SCORE = []
+IOU = []
+IOU_SCORE = []
+SENSITIVITY = []
+SPECIFICITY = []
+ACCURACY = []
+TP = []
+TN = []
+FP = []
+FN = []
 
 
 def find_metrics(true_label, predict_label):
@@ -68,11 +101,6 @@ def find_metrics(true_label, predict_label):
             fp += 1
         else:
             fn += 1
-
-    # print('correct_bgd ', tn)
-    # print('correct_lbl ', tp)
-    # print('false_bgd ', fn)
-    # print('false_lbl ', fp)
 
     return total_bg_pxl_truth, total_obj_pxl_truth, tp, tn, fp, fn
 
@@ -156,53 +184,60 @@ print(predictions)
 labels = os.listdir(label_truth_path)
 print(labels)
 for prediction, label in zip(predictions, labels):
+    # print(f'analyzing {prediction}') # optional
+
     total_bg_pxl_truth, total_obj_pxl_truth, tp, tn, fp, fn = find_metrics(label_truth_path + label,
                                                                            label_mono_path + prediction)
 
-    TP = np.append(TP, tp)
-    TN = np.append(TN, tn)
-    FP = np.append(FP, fp)
-    FN = np.append(FN, fn)
+    # Append metrics for each image
+    image_list.append(prediction)
+    TP.append(tp)
+    TN.append(tn)
+    FP.append(fp)
+    FN.append(fn)
+    TPR.append(tpr(tp, total_obj_pxl_truth))
+    FPR.append(fpr(fp, total_bg_pxl_truth))
+    F_SCORE.append(f_score(tp, fp, fn))
+    IOU_SCORE.append(iou_score(label_truth_path + label, label_mono_path + prediction))
+    SENSITIVITY.append(sensitivity(tp, fn))
+    SPECIFICITY.append(specificity(fp, tn))
+    ACCURACY.append(accuracy(tp, fp, tn, fn))
 
-    image_iou = iou(label_truth_path + label, label_mono_path + prediction)
+    # Append metrics for each image
+    image_list.append(prediction)
+    TP.append(tp)
+    TN.append(tn)
+    FP.append(fp)
+    FN.append(fn)
+    TPR.append(tpr(tp, total_obj_pxl_truth))
+    FPR.append(fpr(fp, total_bg_pxl_truth))
+    F_SCORE.append(f_score(tp, fp, fn))
+    IOU_SCORE.append(iou_score(label_truth_path + label, label_mono_path + prediction))
+    SENSITIVITY.append(sensitivity(tp, fn))
+    SPECIFICITY.append(specificity(fp, tn))
+    ACCURACY.append(accuracy(tp, fp, tn, fn))
 
-    image_iou_score = iou_score(label_truth_path + label, label_mono_path + prediction)
-    # if i == 0:
-    #     print('number of label pixels ', total_obj_pxl_truth)
-    #     print('number of background pixels ', total_bg_pxl_truth)
-    #     print('true negative ', tn)
-    #     print('true positive ', tp)
-    #     print('false negative ', fn)
-    #     print('false positive ', fp)
-
-    TPR = np.append(TPR, tpr(tp, total_obj_pxl_truth))
-    # TPR.append(tpr(tp, total_obj_pxl_truth))
-    FPR = np.append(FPR, fpr(fp, total_bg_pxl_truth))
-    # FPR.append(fpr(fp, total_bg_pxl_truth))
-    F_SCORE = np.append(F_SCORE, f_score(tp, fp, fn))
-    # F_SCORE.append(f_score(tp, fp, fn))
-    IOU = np.append(IOU, image_iou)
-    # image iou
-    IOU_SCORE = np.append(IOU_SCORE, image_iou_score)
-    # sensitivity
-    SENSITIVITY = np.append(SENSITIVITY, sensitivity(tp, fn))
-    # specificity
-    SPECIFICITY = np.append(SPECIFICITY, specificity(fp, tn))
-    # accuracy
-    ACCURACY = np.append(ACCURACY, accuracy(tp, fp, tn, fn))
-
-    image_list = np.append(image_list, i)
     i += 1
     if i % 10 == 0:
         print('analyzed ', i, ' images')
 
-# print('number of label pixels ', total_obj_pxl_truth)
-# print('number of background pixels ', total_bg_pxl_truth)
-# print('true negative ', tn)
-# print('true positive ', tp)
-# print('false negative ', fn)
-# print('false positive ', fp)
-# print()
+# Create a DataFrame
+df = pd.DataFrame({
+    'Image': image_list,
+    'TPR': TPR,
+    'FPR': FPR,
+    'F-Score': F_SCORE,
+    'IOU Score': IOU_SCORE,
+    'Sensitivity': SENSITIVITY,
+    'Specificity': SPECIFICITY,
+    'Accuracy': ACCURACY,
+    'TP': TP,
+    'TN': TN,
+    'FP': FP,
+    'FN': FN
+})
+
+
 print('average TPR: ', np.average(TPR))
 print('average FPR: ', np.average(FPR))
 print('average F-Score: ', np.average(F_SCORE))
@@ -212,7 +247,7 @@ print('average specificity: ', np.average(SPECIFICITY))
 print('average accuracy: ', np.average(ACCURACY))
 print('average IOU score: ', np.average(IOU_SCORE))
 
-final = np.asarray([image_list, TPR, FPR, F_SCORE, IOU_SCORE, SENSITIVITY, SPECIFICITY, ACCURACY, TP, TN, FP, FN])
-# save csv file
-# np.savetxt(save_to + '/model_raw_metrics_super.csv', final, delimiter=',')
-
+# Save to CSV
+df.to_csv(os.path.join(save_to, 'model_raw_metrics_super.csv'), index=False)
+print(f"Metrics saved to {save_to}/model_raw_metrics_super.csv")
+    
