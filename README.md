@@ -1,4 +1,4 @@
-# AMS-UNET Repository
+# AMS-UNET
 
 This repository contains the code for the AMS-UNET paper, which implements various image preprocessing, segmentation, and postprocessing techniques for DBT medical image analysis using a U-Net-based deep learning model. The repository is organized to facilitate the training, evaluation, and analysis of the model, along with the code used for calculating metric and experiments.
 
@@ -11,7 +11,7 @@ Here is an overview of the key files and folders in this repository:
 - **`data/`**: 
   - Contains subdirectories for storing raw and processed data
   
-- **`experiments`**: 
+- **`experiments/`**: 
   - This directory is intended to store the output metrics and images generated from the experiments.
 
 - **`sample_images/`**: 
