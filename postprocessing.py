@@ -1,24 +1,19 @@
 import os
-
-import imageio
 import numpy as np
+import imageio.v3 as imageio  # Ensures compatibility with the latest version of imageio
 import matplotlib.pyplot as plt
-from skimage import img_as_uint
+from skimage import img_as_uint, data
 from skimage.transform import resize
-from skimage.filters import threshold_otsu, threshold_minimum
-from keras_preprocessing.image import load_img, img_to_array
-from skimage.transform import resize
+from skimage.filters import threshold_otsu, threshold_minimum, try_all_threshold
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from scipy.ndimage import uniform_filter, gaussian_filter, median_filter
-import matplotlib
-from skimage import data
-from skimage.filters import try_all_threshold
 
 
 # create mono label using threshold and save to folder
 
 
 def otsu_thresh(label_thresh_path, target_path):
-    ''' takes in an image from the label thresh path and save it into the target path '''
+    '''Applies Otsu's thresholding to each image in label_thresh_path and saves the binary images to target_path.'''
     predictions = os.listdir(label_thresh_path)
     print('loading from ', label_thresh_path)
     for predict in predictions:
@@ -36,6 +31,7 @@ def otsu_thresh(label_thresh_path, target_path):
 
 
 def min_thresh(label_thresh_path, target_path):
+    '''Applies minimum thresholding to each image in label_thresh_path and saves the binary images to target_path.'''
     predictions = os.listdir(label_thresh_path)
     for predict in predictions:
         # load predicted label
@@ -52,6 +48,7 @@ def min_thresh(label_thresh_path, target_path):
 
 
 def restore_size(label_predict_path, target_path, target_height, target_width):
+    '''Resizes each image in label_predict_path to target dimensions and saves them to target_path.'''
     predictions = os.listdir(label_predict_path)
     for predict in predictions:
         # load predicted label
@@ -62,6 +59,7 @@ def restore_size(label_predict_path, target_path, target_height, target_width):
 
 
 def uniform_otsu_thresh(label_thresh_path, target_path, filter_size=50):
+    '''Applies a uniform filter and Otsu's thresholding to each image in label_thresh_path and saves the result to target_path.'''
     predictions = os.listdir(label_thresh_path)
     for predict in predictions:
         # load predicted label
@@ -81,8 +79,7 @@ def uniform_otsu_thresh(label_thresh_path, target_path, filter_size=50):
 
 
 def gaus_otsu_thresh(label_thresh_path, target_path, filter_size=15):
-    ''' takes in a raw image then applies gaussian blur with the filter size then applies otsu threshold
-        and saves it into the target path '''
+    '''Applies Gaussian blur and Otsu's thresholding to each image in label_thresh_path and saves the result to target_path.'''
     print('applying gaussian blur {} then Otsu on images in {}'.format(filter_size, label_thresh_path))
     predictions = os.listdir(label_thresh_path)
     for predict in predictions:
@@ -103,6 +100,7 @@ def gaus_otsu_thresh(label_thresh_path, target_path, filter_size=15):
 
 
 def median_otsu_thresh(label_thresh_path, target_path, filter_size=55):
+    '''Applies a median filter and Otsu's thresholding to each image in label_thresh_path and saves the result to target_path.'''
     predictions = os.listdir(label_thresh_path)
     for predict in predictions:
         # load predicted label
@@ -122,6 +120,7 @@ def median_otsu_thresh(label_thresh_path, target_path, filter_size=55):
 
 
 def gaus_blur(label_thresh_path, target_path, filter_size=15):
+    '''Applies Gaussian blur to each image in label_thresh_path and saves the blurred images to target_path.'''
     print('applying gaussian blur {} on images in {}'.format(filter_size, label_thresh_path))
     predictions = os.listdir(label_thresh_path)
     for predict in predictions:
@@ -166,7 +165,7 @@ otsu_thresh(label_predict_path, label_thresh_path)
 # restore_size(label_thresh_path, target_path_final, 2048, 2048)
 
 
-''' try all '''
+''' try all - load a sample image and view the output of different methods'''
 # img = data.page()
 #
 # predictions = os.listdir(label_predict_path)
