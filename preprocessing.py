@@ -2,6 +2,15 @@ from data import *
 from general import paste
 import cv2
 
+"""
+This script provides functions for processing, padding, cropping, and copying images to prepare them for analysis or machine learning tasks. 
+It includes functions to pad images to a specified size, copy specific images to a folder, and crop images and masks into square patches.
+
+each code chunk can be used independently as needed, comment/uncomment the unwanted section to avoid working on data that
+has been already processed
+"""
+
+
 ''' function to pad the image to make it divisible by 2'''
 def pad_image2(img, target_size, start=0, end=0, target_folder='', save_name='', save=False):
     # convert loaded image into numpy arrays
