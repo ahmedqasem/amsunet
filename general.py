@@ -1,7 +1,6 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from keras_preprocessing.image import load_img, img_to_array
 
 
 def describe_data(dataset, name):

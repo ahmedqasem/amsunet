@@ -1,20 +1,16 @@
 from __future__ import print_function
 
-from general import paste
-
-from keras.preprocessing.image import ImageDataGenerator
-import numpy as np 
 import os
 import glob
-import skimage.io as io
-import skimage.transform as trans
-
-from tqdm import tqdm_notebook
 import shutil
-from keras.preprocessing.image import img_to_array, load_img
+import numpy as np
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 from skimage.transform import resize
+import skimage.transform as trans
 import imageio
+from skimage import io, transform
 
+from general import paste
 
 
 def adjustData(img,mask,flag_multi_class,num_class):
@@ -74,33 +70,47 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
         img,mask = adjustData(img,mask,flag_multi_class,num_class)
         yield (img,mask)
 
+def testGenerator(test_path, target_size=(256, 256), flag_multi_class=False, as_gray=True):
+    """
+    Loads all images from a specified folder, processes them, and yields them one by one with the file name.
+
+    Parameters:
+        test_path (str): The directory path where test images are stored.
+        target_size (tuple): The desired size of each image (default is 256x256).
+        flag_multi_class (bool): Indicates if multi-class labels are used (default is False).
+        as_gray (bool): Determines whether to load images in grayscale (default is True).
+
+    Yields:
+        tuple: Processed image and original file name.
+    """
+    image_files = sorted([f for f in os.listdir(test_path) if f.endswith(('.png', '.jpg', '.jpeg'))])
+
+    for img_name in image_files:
+        img_path = os.path.join(test_path, img_name)
+        img = io.imread(img_path, as_gray=as_gray)
+        img = img / 255.0
+        img = transform.resize(img, target_size)
+        img = np.reshape(img, img.shape + (1,)) if not flag_multi_class else img
+        img = np.reshape(img, (1,) + img.shape)
+        
+        yield img, img_name
 
 
-def testGenerator(test_path,num_image = 30,target_size = (256,256),flag_multi_class = False,as_gray = True):
-    for i in range(num_image):
-        img = io.imread(os.path.join(test_path,"%d.png"%i),as_gray = as_gray)
-        img = img / 255
-        img = trans.resize(img,target_size)
-        img = np.reshape(img,img.shape+(1,)) if (not flag_multi_class) else img
-        img = np.reshape(img,(1,)+img.shape)
-        yield img
-
-
-def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
-    image_name_arr = glob.glob(os.path.join(image_path,"%s*.png"%image_prefix))
-    image_arr = []
-    mask_arr = []
-    for index,item in enumerate(image_name_arr):
-        img = io.imread(item,as_gray = image_as_gray)
-        img = np.reshape(img,img.shape + (1,)) if image_as_gray else img
-        mask = io.imread(item.replace(image_path,mask_path).replace(image_prefix,mask_prefix),as_gray = mask_as_gray)
-        mask = np.reshape(mask,mask.shape + (1,)) if mask_as_gray else mask
-        img,mask = adjustData(img,mask,flag_multi_class,num_class)
-        image_arr.append(img)
-        mask_arr.append(mask)
-    image_arr = np.array(image_arr)
-    mask_arr = np.array(mask_arr)
-    return image_arr,mask_arr
+# def geneTrainNpy(image_path,mask_path,flag_multi_class = False,num_class = 2,image_prefix = "image",mask_prefix = "mask",image_as_gray = True,mask_as_gray = True):
+#     image_name_arr = glob.glob(os.path.join(image_path,"%s*.png"%image_prefix))
+#     image_arr = []
+#     mask_arr = []
+#     for index,item in enumerate(image_name_arr):
+#         img = io.imread(item,as_gray = image_as_gray)
+#         img = np.reshape(img,img.shape + (1,)) if image_as_gray else img
+#         mask = io.imread(item.replace(image_path,mask_path).replace(image_prefix,mask_prefix),as_gray = mask_as_gray)
+#         mask = np.reshape(mask,mask.shape + (1,)) if mask_as_gray else mask
+#         img,mask = adjustData(img,mask,flag_multi_class,num_class)
+#         image_arr.append(img)
+#         mask_arr.append(mask)
+#     image_arr = np.array(image_arr)
+#     mask_arr = np.array(mask_arr)
+#     return image_arr,mask_arr
 
 
 def labelVisualize(num_class,color_dict,img):
@@ -111,12 +121,14 @@ def labelVisualize(num_class,color_dict,img):
     return img_out / 255
 
 
-
-def saveResult(save_path,npyfile,flag_multi_class = False,num_class = 2):
-    for i,item in enumerate(npyfile):
-        img = labelVisualize(num_class,COLOR_DICT,item) if flag_multi_class else item[:,:,0]
-        io.imsave(os.path.join(save_path,"%d_predict.png"%i),img)
-
+def saveResult(save_path, npyfile, file_names, flag_multi_class=False, num_class=2):
+    for i, (item, file_name) in enumerate(zip(npyfile, file_names)):
+        img = labelVisualize(num_class, COLOR_DICT, item) if flag_multi_class else item[:, :, 0]
+        # Convert the image to uint8 (0-255 range) for saving as PNG
+        img = (img * 255).astype(np.uint8)
+        # Save the image with the original file name
+        save_name = os.path.join(save_path, file_name)
+        io.imsave(save_name, img)
 
 ''' Operations Functions '''
 
@@ -159,30 +171,6 @@ def pad_image(img, target_size, target_folder='', save_name='', save=False):
     pasted_image = np.zeros((target_size, target_size))
     temp = np.squeeze(original_img)
     paste(pasted_image, temp, (0, 0))
-
-    old_img = np.squeeze(original_img) / 255
-    empty_canvas = np.squeeze(canvas) / 255
-    new_img = pasted_image / 255
-
-    # old = old_img / 255
-    # empty = empty_canvas / 255
-    # new = new_img / 255
-
-    # save image
-    if save:
-        save_path = target_folder + save_name
-        imageio.imwrite(save_path, pasted_image)
-        print(save_name + ' padded and saved to ' + target_folder)
-    return new_img
-
-def pad_image2(img, target_size, start=0, end=0, target_folder='', save_name='', save=False):
-    # convert loaded image into numpy arrays
-    original_img = img_to_array(img)
-    # create an empty square canvas
-    canvas = np.zeros((target_size, target_size))
-    pasted_image = np.zeros((target_size, target_size))
-    temp = np.squeeze(original_img)
-    paste(pasted_image, temp, (start, end))
 
     old_img = np.squeeze(original_img) / 255
     empty_canvas = np.squeeze(canvas) / 255
