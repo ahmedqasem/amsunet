@@ -46,3 +46,62 @@ Here is an overview of the key files and folders in this repository:
 - **`train.py`**: 
   - The main training script for the AMS-UNET model.
 
+
+
+<br>
+
+## Setting Up the Environment
+
+
+This repository includes a Conda environment file (`amsunet-macos.yml`) to set up the required dependencies for the project.
+
+### Steps to Recreate the Environment
+
+
+1. **Clone the Repository**  
+
+   Clone this repository to your local machine (or download the code as a zip file):
+
+   ```
+   git clone https://github.com/ahmedqasem/amsunet.git
+
+   cd amsunet
+   ```
+
+2. **Create the Conda Environment**  
+
+    If you are using Mac (M-Series) run the following command 
+
+    ```
+    conda env create --file amsunet-macos.yml
+    ```
+
+    this might not work if you are on windows, if you are on Windows  ``amsunet-win.yml`` file will be added soon
+    
+    this code uses ``tensorflow==2.13.0``
+
+
+4. **Verify the Installation**  
+
+    ```
+    conda activate amsunet-macos
+    ```
+
+    if you see ``amsunet-macos`` in the anaconda environments list then the installation was successful
+
+    ```
+    # conda environments:
+    #
+    base                  /path/to/conda/base
+    amsunet-macos         /path/to/conda/envs/amsunet-macos
+
+    ```
+
+
+3. **Activate the Environment**  
+
+    ```
+    conda activate amsunet-macos
+    ```
+
+
