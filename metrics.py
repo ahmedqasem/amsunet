@@ -176,78 +176,78 @@ def specificity(false_positive, true_negative):
 def accuracy(true_positive, false_positive, true_negative, false_negative):
     return (true_positive + true_negative) / (true_positive + true_negative + false_positive + false_negative)
 
+if __name__ =='__main__':
+    i = 0
+    predictions = os.listdir(label_mono_path)
+    print('working on {}'.format(label_mono_path))
+    print(predictions)
+    labels = os.listdir(label_truth_path)
+    print(labels)
+    for prediction, label in zip(predictions, labels):
+        # print(f'analyzing {prediction}') # optional
 
-i = 0
-predictions = os.listdir(label_mono_path)
-print('working on {}'.format(label_mono_path))
-print(predictions)
-labels = os.listdir(label_truth_path)
-print(labels)
-for prediction, label in zip(predictions, labels):
-    # print(f'analyzing {prediction}') # optional
+        total_bg_pxl_truth, total_obj_pxl_truth, tp, tn, fp, fn = find_metrics(label_truth_path + label,
+                                                                            label_mono_path + prediction)
 
-    total_bg_pxl_truth, total_obj_pxl_truth, tp, tn, fp, fn = find_metrics(label_truth_path + label,
-                                                                           label_mono_path + prediction)
+        # Append metrics for each image
+        image_list.append(prediction)
+        TP.append(tp)
+        TN.append(tn)
+        FP.append(fp)
+        FN.append(fn)
+        TPR.append(tpr(tp, total_obj_pxl_truth))
+        FPR.append(fpr(fp, total_bg_pxl_truth))
+        F_SCORE.append(f_score(tp, fp, fn))
+        IOU_SCORE.append(iou_score(label_truth_path + label, label_mono_path + prediction))
+        SENSITIVITY.append(sensitivity(tp, fn))
+        SPECIFICITY.append(specificity(fp, tn))
+        ACCURACY.append(accuracy(tp, fp, tn, fn))
 
-    # Append metrics for each image
-    image_list.append(prediction)
-    TP.append(tp)
-    TN.append(tn)
-    FP.append(fp)
-    FN.append(fn)
-    TPR.append(tpr(tp, total_obj_pxl_truth))
-    FPR.append(fpr(fp, total_bg_pxl_truth))
-    F_SCORE.append(f_score(tp, fp, fn))
-    IOU_SCORE.append(iou_score(label_truth_path + label, label_mono_path + prediction))
-    SENSITIVITY.append(sensitivity(tp, fn))
-    SPECIFICITY.append(specificity(fp, tn))
-    ACCURACY.append(accuracy(tp, fp, tn, fn))
+        # Append metrics for each image
+        image_list.append(prediction)
+        TP.append(tp)
+        TN.append(tn)
+        FP.append(fp)
+        FN.append(fn)
+        TPR.append(tpr(tp, total_obj_pxl_truth))
+        FPR.append(fpr(fp, total_bg_pxl_truth))
+        F_SCORE.append(f_score(tp, fp, fn))
+        IOU_SCORE.append(iou_score(label_truth_path + label, label_mono_path + prediction))
+        SENSITIVITY.append(sensitivity(tp, fn))
+        SPECIFICITY.append(specificity(fp, tn))
+        ACCURACY.append(accuracy(tp, fp, tn, fn))
 
-    # Append metrics for each image
-    image_list.append(prediction)
-    TP.append(tp)
-    TN.append(tn)
-    FP.append(fp)
-    FN.append(fn)
-    TPR.append(tpr(tp, total_obj_pxl_truth))
-    FPR.append(fpr(fp, total_bg_pxl_truth))
-    F_SCORE.append(f_score(tp, fp, fn))
-    IOU_SCORE.append(iou_score(label_truth_path + label, label_mono_path + prediction))
-    SENSITIVITY.append(sensitivity(tp, fn))
-    SPECIFICITY.append(specificity(fp, tn))
-    ACCURACY.append(accuracy(tp, fp, tn, fn))
+        i += 1
+        if i % 10 == 0:
+            print('analyzed ', i, ' images')
 
-    i += 1
-    if i % 10 == 0:
-        print('analyzed ', i, ' images')
-
-# Create a DataFrame
-df = pd.DataFrame({
-    'Image': image_list,
-    'TPR': TPR,
-    'FPR': FPR,
-    'F-Score': F_SCORE,
-    'IOU Score': IOU_SCORE,
-    'Sensitivity': SENSITIVITY,
-    'Specificity': SPECIFICITY,
-    'Accuracy': ACCURACY,
-    'TP': TP,
-    'TN': TN,
-    'FP': FP,
-    'FN': FN
-})
+    # Create a DataFrame
+    df = pd.DataFrame({
+        'Image': image_list,
+        'TPR': TPR,
+        'FPR': FPR,
+        'F-Score': F_SCORE,
+        'IOU Score': IOU_SCORE,
+        'Sensitivity': SENSITIVITY,
+        'Specificity': SPECIFICITY,
+        'Accuracy': ACCURACY,
+        'TP': TP,
+        'TN': TN,
+        'FP': FP,
+        'FN': FN
+    })
 
 
-print('average TPR: ', np.average(TPR))
-print('average FPR: ', np.average(FPR))
-print('average F-Score: ', np.average(F_SCORE))
-print('average IOU: ', np.average(IOU))
-print('average sensitivity: ', np.average(SENSITIVITY))
-print('average specificity: ', np.average(SPECIFICITY))
-print('average accuracy: ', np.average(ACCURACY))
-print('average IOU score: ', np.average(IOU_SCORE))
+    print('average TPR: ', np.average(TPR))
+    print('average FPR: ', np.average(FPR))
+    print('average F-Score: ', np.average(F_SCORE))
+    print('average IOU: ', np.average(IOU))
+    print('average sensitivity: ', np.average(SENSITIVITY))
+    print('average specificity: ', np.average(SPECIFICITY))
+    print('average accuracy: ', np.average(ACCURACY))
+    print('average IOU score: ', np.average(IOU_SCORE))
 
-# Save to CSV
-df.to_csv(os.path.join(save_to, 'model_raw_metrics_super.csv'), index=False)
-print(f"Metrics saved to {save_to}/model_raw_metrics_super.csv")
-    
+    # Save to CSV
+    df.to_csv(os.path.join(save_to, 'model_raw_metrics_super.csv'), index=False)
+    print(f"Metrics saved to {save_to}/model_raw_metrics_super.csv")
+        

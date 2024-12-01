@@ -139,39 +139,40 @@ def gaus_blur(label_thresh_path, target_path, filter_size=15):
         # save mono label
         imageio.imwrite(target_path + predict, img_as_uint(blured))
 
-label_predict_path = './experiments/predict/'
-label_blur_path = './experiments/gaus_blur_15/'
-label_thresh_path = './experiments/otsu/'
+if __name__ == '__main__':
+    label_predict_path = './experiments/predict/'
+    label_blur_path = './experiments/gaus_blur_15/'
+    label_thresh_path = './experiments/otsu/'
 
-# predictions = os.listdir(label_predict_path)
+    # predictions = os.listdir(label_predict_path)
 
-''' Mono Image - different experiments '''
-# otsu_thresh(label_predict_path, label_thresh_path)
-# min_thresh(label_predict_path, label_thresh_path)
-# uniform_otsu_thresh(label_predict_path, label_thresh_path)
-# gaus_otsu_thresh(label_predict_path, label_thresh_path)
-# median_otsu_thresh(label_predict_path, label_thresh_path)
+    ''' Mono Image - different experiments '''
+    # otsu_thresh(label_predict_path, label_thresh_path)
+    # min_thresh(label_predict_path, label_thresh_path)
+    # uniform_otsu_thresh(label_predict_path, label_thresh_path)
+    # gaus_otsu_thresh(label_predict_path, label_thresh_path)
+    # median_otsu_thresh(label_predict_path, label_thresh_path)
 
-# apply gaussian blur
-# gaus_blur(label_predict_path, label_blur_path, filter_size=15)
+    # apply gaussian blur
+    # gaus_blur(label_predict_path, label_blur_path, filter_size=15)
 
-# apply otsu alone
-otsu_thresh(label_predict_path, label_thresh_path)
+    # apply otsu alone
+    otsu_thresh(label_predict_path, label_thresh_path)
 
-# apply gauss then otsu
-# gaus_otsu_thresh(label_predict_path, label_thresh_path, filter_size=15)
+    # apply gauss then otsu
+    # gaus_otsu_thresh(label_predict_path, label_thresh_path, filter_size=15)
 
-''' restore size '''
-# restore_size(label_thresh_path, target_path_final, 2048, 2048)
+    ''' restore size '''
+    # restore_size(label_thresh_path, target_path_final, 2048, 2048)
 
 
-''' try all - load a sample image and view the output of different methods'''
-# img = data.page()
-#
-# predictions = os.listdir(label_predict_path)
-# print(predictions)
-# label_predict = load_img(label_predict_path + predictions[10], color_mode='grayscale')
-# label_predict = img_to_array(label_predict)
-# old_label_predict = np.squeeze(label_predict) / 255
-# fig, ax = try_all_threshold(old_label_predict, figsize=(10, 8), verbose=False)
-# plt.show()
+    ''' try all - load a sample image and view the output of different methods'''
+    # img = data.page()
+    #
+    # predictions = os.listdir(label_predict_path)
+    # print(predictions)
+    # label_predict = load_img(label_predict_path + predictions[10], color_mode='grayscale')
+    # label_predict = img_to_array(label_predict)
+    # old_label_predict = np.squeeze(label_predict) / 255
+    # fig, ax = try_all_threshold(old_label_predict, figsize=(10, 8), verbose=False)
+    # plt.show()
