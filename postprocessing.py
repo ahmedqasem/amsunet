@@ -82,6 +82,7 @@ def gaus_otsu_thresh(label_thresh_path, target_path, filter_size=15):
     '''Applies Gaussian blur and Otsu's thresholding to each image in label_thresh_path and saves the result to target_path.'''
     print('applying gaussian blur {} then Otsu on images in {}'.format(filter_size, label_thresh_path))
     predictions = os.listdir(label_thresh_path)
+    postprocessed = []
     for predict in predictions:
         # load predicted label
         label_predict = load_img(label_thresh_path + predict, color_mode='grayscale')
@@ -94,9 +95,11 @@ def gaus_otsu_thresh(label_thresh_path, target_path, filter_size=15):
         # convert predicted label to mono using otsu thresholding
         thresh = threshold_otsu(blured)
         mono_label = blured > thresh
-
+        # add mono_label to return list
+        postprocessed.append(mono_label)
         # save mono label
         imageio.imwrite(target_path + predict, img_as_uint(mono_label))
+    return postprocessed
 
 
 def median_otsu_thresh(label_thresh_path, target_path, filter_size=55):
