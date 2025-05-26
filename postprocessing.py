@@ -82,8 +82,10 @@ def gaus_otsu_thresh(label_thresh_path, target_path, filter_size=15):
     '''Applies Gaussian blur and Otsu's thresholding to each image in label_thresh_path and saves the result to target_path.'''
     print('applying gaussian blur {} then Otsu on images in {}'.format(filter_size, label_thresh_path))
     predictions = os.listdir(label_thresh_path)
+    predictions = [f for f in predictions if f != '.DS_Store']
     postprocessed = []
     for predict in predictions:
+        print(predict)
         # load predicted label
         label_predict = load_img(label_thresh_path + predict, color_mode='grayscale')
         label_predict = img_to_array(label_predict)
